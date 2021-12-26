@@ -1,0 +1,33 @@
+Usage Page(Generic_Desktop_ID),
+Usage (Mouse),
+Collection (Application),
+ Usage (Pointer),
+ Collection (Physical)
+  Usage Page (Button)
+  Usage Minimum (1)
+  Usage Maximum (16)
+  Logical Minimum (0)
+  Logical Maximum (1)
+  Report Count (16)
+  Report Size (1)
+  Input (Data,Var,Abs)
+  Usage Page (Generic Desktop)
+  Logical Minimum (-32767)
+  Logical Maximum (32767)
+  Report Size (16)
+  Report Count (2)
+  Usage (X)
+  Usage (Y)
+  Input (Data,Var,Rel)
+  Logical Minimum (-127)
+  Logical Maximum (127)
+  Report Size (8)
+  Report Count (1)
+  Usage (Wheel)
+  Input (Data,Var,Rel)
+  Usage Page (Consumer Devices)
+  Usage (AC Pan)
+  Report Count (1)
+  Input (Data,Var,Rel)
+ End Collection
+End Collection
