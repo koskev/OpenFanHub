@@ -23,7 +23,7 @@
 
 /* USER CODE BEGIN INCLUDE */
 #include <hid_def.h>
-//extern void on_usb_rx(void*);
+extern void on_usb_rx(void*);
 
 /* USER CODE END INCLUDE */
 
@@ -199,8 +199,8 @@ static int8_t CUSTOM_HID_DeInit_FS(void)
 static int8_t CUSTOM_HID_OutEvent_FS(uint8_t event_idx, uint8_t state)
 {
   /* USER CODE BEGIN 6 */
-	//USBD_CUSTOM_HID_HandleTypeDef *hid = ((USBD_CUSTOM_HID_HandleTypeDef*)hUsbDeviceFS.pClassData);
-	//on_usb_rx(hid->Report_buf);
+	USBD_CUSTOM_HID_HandleTypeDef *hid = ((USBD_CUSTOM_HID_HandleTypeDef*)hUsbDeviceFS.pClassData);
+	on_usb_rx(hid->Report_buf);
   return (USBD_OK);
   /* USER CODE END 6 */
 }
