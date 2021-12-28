@@ -1,5 +1,7 @@
+#include "STM32F1/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio.h"
 #include "stm32f1xx.h"
 #include "STM32F1/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash.h"
+#include <stm32f103xb.h>
 #include <stm32f1xx_hal.h>
 #include <stm32f1xx_hal_conf.h>
 #include <main.h>
@@ -12,13 +14,7 @@
 #include <stdint.h>
 #include <string.h>
 
-/**
- *
- *  TODO:
- *  	Actual PWM value differs from requested one, skipping. Requested: 1 Actual: 0
-  DEBUG   Setting Fan PWM of 'hub_fan4' to 2 ...
-  DEBUG   Actual PWM value differs from requested one, skipping. Requested: 2 Actual: 0
- */
+#include "config.h"
 
 /**
  * Notes Fan:
@@ -26,14 +22,20 @@
  * https://www.glkinst.com/cables/cable_pics/4_Wire_PWM_Spec.pdf
  * https://noctua.at/pub/media/wysiwyg/Noctua_PWM_specifications_white_paper.pdf
  * 	25kHz, acceptable range 21kHz to 28kHz
+ * 		freq doesn't seem to matter at all. even worked with a 18hz signal
  * 	max: 5,25V 
  * 	low: 0.8V
- * 		3.3V PWM should be fine
+ * 		3.3V PWM works fine
+ * 	pulled high
+ * 		max 5.25v. rec 3.3v
+ * 	fan pulls tacho signal low on pass
+ * 		pull up for desired voltage
  *
  *
  */
 
 extern int8_t USBD_CUSTOM_HID_SendReport_FS ( uint8_t *report,uint16_t len);
+extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim4;
@@ -71,6 +73,7 @@ enum CONTROL {
 typedef struct fan_handle_s {
 	uint8_t pwm_percent;
 	volatile uint16_t rpm;
+	int is_4pin;
 
 	TIM_HandleTypeDef* pwm_handle;
 	uint32_t pwm_channel;
@@ -107,6 +110,7 @@ void set_fan_pwm_percentage(uint8_t fan_id, uint8_t pwm_percent) {
 	if(handle) {
 		__HAL_TIM_SET_COMPARE(handle, fans[fan_id].pwm_channel, pwm);
 	}
+	fans[fan_id].pwm_percent = pwm_percent;
 }
 
 uint16_t get_temp(int temp_id) {
@@ -167,7 +171,35 @@ void on_usb_rx(void* data) {
 	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 }
 
-void init_fan(int id, TIM_HandleTypeDef* pwm_handle, uint32_t pwm_channel, TIM_HandleTypeDef* ic_handle, uint32_t ic_channel, uint32_t ic_active_channel) {
+/**
+ * Returns 1 if a 4-pin fan is detected. 0 otherwise
+ */
+int fan_detect_4pin(GPIO_TypeDef* pwm_port, uint16_t pwm_pin) {
+	int ret = 0;
+	// enable input
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
+	GPIO_InitStruct.Pin = pwm_pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(pwm_port, &GPIO_InitStruct);
+	
+	// read if is high
+	GPIO_PinState state = HAL_GPIO_ReadPin(pwm_port, pwm_pin);
+
+	if(state == GPIO_PIN_SET) {
+		ret = 1;
+	}
+	
+	// enable output again with prev stats
+	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	HAL_GPIO_Init(pwm_port, &GPIO_InitStruct);
+	
+	return ret;
+}
+
+void init_fan(int id, TIM_HandleTypeDef* pwm_handle, uint32_t pwm_channel, TIM_HandleTypeDef* ic_handle, uint32_t ic_channel, uint32_t ic_active_channel, GPIO_TypeDef* pwm_port, uint16_t pwm_pin) {
 	HAL_TIM_Base_Start_IT(pwm_handle);
 	HAL_TIM_PWM_Start(pwm_handle, pwm_channel);
 	__HAL_TIM_SET_COMPARE(pwm_handle, pwm_channel, 0);
@@ -180,13 +212,19 @@ void init_fan(int id, TIM_HandleTypeDef* pwm_handle, uint32_t pwm_channel, TIM_H
 	fans[id].ic_handle = ic_handle;
 	fans[id].ic_channel = ic_channel;
 	fans[id].ic_channel_active = ic_active_channel;
+	fans[id].is_4pin = fan_detect_4pin(pwm_port, pwm_pin);
 
-	fans[id].rpm = 42;
+	set_fan_pwm_percentage(id, 50);
 }
 
 void init_fans() {
-	init_fan(0, &htim2, TIM_CHANNEL_1, &htim4, TIM_CHANNEL_4, HAL_TIM_ACTIVE_CHANNEL_4);
-	//TODO: other fans
+	//init_fan(0, &htim2, TIM_CHANNEL_1, &htim1, TIM_CHANNEL_1, HAL_TIM_ACTIVE_CHANNEL_1, GPIOA, GPIO_PIN_0);
+	init_fan(0, FAN1_PWM_TIMER, FAN1_PWM_CHANNEL, FAN1_IC_TIMER, FAN1_IC_CHANNEL, FAN1_IC_CHANNEL_ACTIVE, FAN1_PWM_PORT, FAN1_PWM_PIN);
+	init_fan(1, FAN2_PWM_TIMER, FAN2_PWM_CHANNEL, FAN2_IC_TIMER, FAN2_IC_CHANNEL, FAN2_IC_CHANNEL_ACTIVE, FAN2_PWM_PORT, FAN2_PWM_PIN);
+	init_fan(3, FAN3_PWM_TIMER, FAN3_PWM_CHANNEL, FAN3_IC_TIMER, FAN3_IC_CHANNEL, FAN3_IC_CHANNEL_ACTIVE, FAN3_PWM_PORT, FAN3_PWM_PIN);
+	init_fan(4, FAN4_PWM_TIMER, FAN4_PWM_CHANNEL, FAN4_IC_TIMER, FAN4_IC_CHANNEL, FAN4_IC_CHANNEL_ACTIVE, FAN4_PWM_PORT, FAN4_PWM_PIN);
+	init_fan(5, FAN5_PWM_TIMER, FAN5_PWM_CHANNEL, FAN5_IC_TIMER, FAN5_IC_CHANNEL, FAN5_IC_CHANNEL_ACTIVE, FAN5_PWM_PORT, FAN5_PWM_PIN);
+	init_fan(6, FAN6_PWM_TIMER, FAN6_PWM_CHANNEL, FAN6_IC_TIMER, FAN6_IC_CHANNEL, FAN6_IC_CHANNEL_ACTIVE, FAN6_PWM_PORT, FAN6_PWM_PIN);
 }
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
@@ -229,6 +267,14 @@ int main() {
 	}
 	init_cubemx();
 	
+	/**
+	 * TODO:
+	 * 	detect 4 or 3 pin fan
+	 * 		pin 4 is pulled high
+	 * 		fan present if rpm > 0
+	 * 	add disable pin
+	 * 		make it work with 3 and 4 pin fans
+	 */
 	init_fans();
 	
 	set_fan_pwm_percentage(0, 50);
