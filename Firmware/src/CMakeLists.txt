@@ -21,6 +21,8 @@ find_package(HAL COMPONENTS
 	GPIO
 	CORTEX
 	TIM
+	UART
+	I2C
 
 	STM32F1
 	REQUIRED)
@@ -43,8 +45,10 @@ SET(PROJECT_SOURCES
 	xprintf.c
 	./STM32F1/Src/main.c
 	./STM32F1/Src/tim.c
-	#./STM32F1/Src/adc.c
+	./STM32F1/Src/adc.c
 	./STM32F1/Src/gpio.c
+	./STM32F1/Src/usart.c
+	./STM32F1/Src/i2c.c
 	./STM32F1/Src/usb_device.c
 	./STM32F1/Src/usbd_conf.c
 	./STM32F1/Src/usbd_desc.c
@@ -78,6 +82,8 @@ target_link_libraries(openfanhub
 	HAL::STM32::F1::LL_USB
 	HAL::STM32::F1::PCD
 	HAL::STM32::F1::PCDEx
+	HAL::STM32::F1::UART
+	HAL::STM32::F1::I2C
 
 	CMSIS::STM32::F103C8
 	STM32::NoSys
