@@ -58,6 +58,18 @@ void init_cubemx();
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define FAN1_SWITCH_Pin GPIO_PIN_12
+#define FAN1_SWITCH_GPIO_Port GPIOB
+#define FAN2_SWITCH_Pin GPIO_PIN_13
+#define FAN2_SWITCH_GPIO_Port GPIOB
+#define FAN3_SWITCH_Pin GPIO_PIN_14
+#define FAN3_SWITCH_GPIO_Port GPIOB
+#define FAN4_SWITCH_Pin GPIO_PIN_15
+#define FAN4_SWITCH_GPIO_Port GPIOB
+#define FAN5_SWITCH_Pin GPIO_PIN_15
+#define FAN5_SWITCH_GPIO_Port GPIOA
+#define FAN6_SWITCH_Pin GPIO_PIN_3
+#define FAN6_SWITCH_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
