@@ -275,6 +275,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
 		volatile fan_handle_t *fan = &fans[i];
 		if(fan->ic_handle->Instance == htim->Instance) {
 			fans[i].ic_overflow +=1;
+			if(fans[i].ic_overflow > 5) {
+				fans[i].rpm = 0;
+			}
 		}
 	}
 }
