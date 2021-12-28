@@ -105,10 +105,14 @@ uint16_t get_fan_pwm(int fan_id) {
 
 
 void set_fan_pwm_percentage(uint8_t fan_id, uint8_t pwm_percent) {
-	uint16_t pwm = MAX_PWM * (pwm_percent/100.0f) + 0.5;
+	if(fan_id >= NUM_FANS) return;
 	//current_pwm = DIV_ROUND(MAX_PWM * pwm_percent, 100);
-	TIM_HandleTypeDef* handle = fans[fan_id].pwm_handle;
+	volatile TIM_HandleTypeDef* handle = fans[fan_id].pwm_handle;
 	if(handle) {
+		uint16_t pwm = 0;
+		if(pwm_percent > 0) {
+			pwm = handle->Init.Period * (pwm_percent/100.0f) + 0.5;
+		}
 		__HAL_TIM_SET_COMPARE(handle, fans[fan_id].pwm_channel, pwm);
 	}
 	fans[fan_id].pwm_percent = pwm_percent;
@@ -237,7 +241,6 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 			uint32_t curr_val = HAL_TIM_ReadCapturedValue(fan->ic_handle, fan->ic_channel);
 			uint32_t diff = (curr_val+fan->ic_overflow*htim->Init.Period) - fan->last_val;
 
-
 			if(diff != 0) {
 				uint32_t freq = (72000000.0f/htim->Init.Prescaler)/diff;
 				fan->rpm = freq * 30; // 2 pulses = one rev
@@ -247,10 +250,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 			fan->ic_overflow = 0;
 			break;
 		}
-		fan->rpm = 1;
-
 	}
-
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
@@ -270,18 +270,14 @@ int main() {
 	
 	/**
 	 * TODO:
-	 * 	detect 4 or 3 pin fan
-	 * 		pin 4 is pulled high
-	 * 		fan present if rpm > 0
 	 * 	add disable pin
 	 * 		make it work with 3 and 4 pin fans
+	 * 	push usb commands in a queue
+	 * 		less volatile needed
+	 * 		same possible for ic?
 	 */
 	init_fans();
 	
-	set_fan_pwm_percentage(0, 50);
-	set_fan_pwm_percentage(1, 50);
-
-
 	while(42) {
 		__WFI();
 	}
