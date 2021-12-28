@@ -3,7 +3,7 @@ EELAYER 30 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 2 5
+Sheet 2 17
 Title ""
 Date ""
 Rev ""
@@ -13,319 +13,94 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+Text HLabel 1100 1000 0    50   Input ~ 0
+FAN1_PWM
+Text HLabel 1100 1150 0    50   Input ~ 0
+FAN1_RPM
+$Sheet
+S 1050 2000 850  650 
+U 61C9BC3A
+F0 "Fan 4" 50
+F1 "fan_connector.sch" 50
+F2 "PWM_IN" I L 1050 2200 50 
+F3 "RPM_OUT" O L 1050 2350 50 
+F4 "PWM_SWITCH" I L 1050 2500 50 
+$EndSheet
 $Sheet
 S 1100 750  600  850 
 U 61CBF096
 F0 "PWM_GROUP1" 50
 F1 "pwm_group.sch" 50
-F2 "PWM_OUT" I L 1100 1000 50 
-F3 "RPM_IN" I L 1100 1150 50 
+F2 "PWM" I L 1100 1000 50 
+F3 "RPM" O L 1100 1150 50 
+F4 "PWM_SWITCH" I L 1100 1350 50 
 $EndSheet
+Text HLabel 2450 1000 0    50   Input ~ 0
+FAN2_PWM
+Text HLabel 2450 1150 0    50   Input ~ 0
+FAN2_RPM
 $Sheet
-S 2500 750  600  850 
-U 61CBF276
+S 2450 750  600  850 
+U 61CAED43
 F0 "PWM_GROUP2" 50
 F1 "pwm_group.sch" 50
-F2 "PWM_OUT" I L 2500 1000 50 
-F3 "RPM_IN" I L 2500 1150 50 
+F2 "PWM" I L 2450 1000 50 
+F3 "RPM" O L 2450 1150 50 
+F4 "PWM_SWITCH" I L 2450 1350 50 
 $EndSheet
+Text HLabel 3800 1050 0    50   Input ~ 0
+FAN3_PWM
+Text HLabel 3800 1200 0    50   Input ~ 0
+FAN3_RPM
 $Sheet
-S 4000 750  600  850 
-U 61CBF411
+S 3800 800  600  850 
+U 61CAEF29
 F0 "PWM_GROUP3" 50
 F1 "pwm_group.sch" 50
-F2 "PWM_OUT" I L 4000 1000 50 
-F3 "RPM_IN" I L 4000 1150 50 
+F2 "PWM" I L 3800 1050 50 
+F3 "RPM" O L 3800 1200 50 
+F4 "PWM_SWITCH" I L 3800 1350 50 
 $EndSheet
-Text HLabel 1100 1000 0    50   Input ~ 0
-FAN1_PWM
-Text HLabel 1100 1150 0    50   Input ~ 0
-FAN1_RPM
-Text HLabel 2500 1000 0    50   Input ~ 0
-FAN2_PWM
-Text HLabel 2500 1150 0    50   Input ~ 0
-FAN2_RPM
-Text HLabel 4000 1000 0    50   Input ~ 0
-FAN3_PWM
-Text HLabel 4000 1150 0    50   Input ~ 0
-FAN3_RPM
-$Comp
-L Connector:Conn_01x04_Male J?
-U 1 1 61CC142C
-P 1100 2500
-AR Path="/61CC142C" Ref="J?"  Part="1" 
-AR Path="/61C7C7AC/61CC142C" Ref="J?"  Part="1" 
-AR Path="/61C8FEA5/61CC142C" Ref="J?"  Part="1" 
-AR Path="/61C90137/61CC142C" Ref="J?"  Part="1" 
-AR Path="/61C90290/61CC142C" Ref="J?"  Part="1" 
-AR Path="/61CB9CE1/61CC142C" Ref="J?"  Part="1" 
-AR Path="/61CBA90E/61CC142C" Ref="J?"  Part="1" 
-AR Path="/61CBB6C5/61CC142C" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CBD8D5/61CC142C" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CBF096/61CC142C" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CBF200/61CC142C" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CBF276/61CC142C" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CBF2DD/61CC142C" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CBF411/61CC142C" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CBF4C9/61CC142C" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CC142C" Ref="J4"  Part="1" 
-F 0 "J4" H 1208 2781 50  0000 C CNN
-F 1 "Conn_01x04_Male" H 1208 2690 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Horizontal" H 1100 2500 50  0001 C CNN
-F 3 "~" H 1100 2500 50  0001 C CNN
-	1    1100 2500
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:GND #PWR?
-U 1 1 61CC1434
-P 1750 2400
-AR Path="/61CC1434" Ref="#PWR?"  Part="1" 
-AR Path="/61C7C7AC/61CC1434" Ref="#PWR?"  Part="1" 
-AR Path="/61C8FEA5/61CC1434" Ref="#PWR?"  Part="1" 
-AR Path="/61C90137/61CC1434" Ref="#PWR?"  Part="1" 
-AR Path="/61C90290/61CC1434" Ref="#PWR?"  Part="1" 
-AR Path="/61CB9CE1/61CC1434" Ref="#PWR?"  Part="1" 
-AR Path="/61CBA90E/61CC1434" Ref="#PWR?"  Part="1" 
-AR Path="/61CBB6C5/61CC1434" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBD8D5/61CC1434" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF096/61CC1434" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF200/61CC1434" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF276/61CC1434" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF2DD/61CC1434" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF411/61CC1434" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF4C9/61CC1434" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CC1434" Ref="#PWR026"  Part="1" 
-F 0 "#PWR026" H 1750 2150 50  0001 C CNN
-F 1 "GND" V 1755 2272 50  0000 R CNN
-F 2 "" H 1750 2400 50  0001 C CNN
-F 3 "" H 1750 2400 50  0001 C CNN
-	1    1750 2400
-	0    -1   -1   0   
-$EndComp
-$Comp
-L power:+12V #PWR?
-U 1 1 61CC143A
-P 1750 2500
-AR Path="/61CC143A" Ref="#PWR?"  Part="1" 
-AR Path="/61C7C7AC/61CC143A" Ref="#PWR?"  Part="1" 
-AR Path="/61C8FEA5/61CC143A" Ref="#PWR?"  Part="1" 
-AR Path="/61C90137/61CC143A" Ref="#PWR?"  Part="1" 
-AR Path="/61C90290/61CC143A" Ref="#PWR?"  Part="1" 
-AR Path="/61CB9CE1/61CC143A" Ref="#PWR?"  Part="1" 
-AR Path="/61CBA90E/61CC143A" Ref="#PWR?"  Part="1" 
-AR Path="/61CBB6C5/61CC143A" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBD8D5/61CC143A" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF096/61CC143A" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF200/61CC143A" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF276/61CC143A" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF2DD/61CC143A" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF411/61CC143A" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF4C9/61CC143A" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CC143A" Ref="#PWR027"  Part="1" 
-F 0 "#PWR027" H 1750 2350 50  0001 C CNN
-F 1 "+12V" V 1765 2628 50  0000 L CNN
-F 2 "" H 1750 2500 50  0001 C CNN
-F 3 "" H 1750 2500 50  0001 C CNN
-	1    1750 2500
-	0    1    1    0   
-$EndComp
-Wire Wire Line
-	1750 2500 1300 2500
-Wire Wire Line
-	1300 2400 1750 2400
-Text HLabel 1400 2600 2    50   Input ~ 0
-FAN4_RPM
-Wire Wire Line
-	1300 2600 1400 2600
-Text HLabel 1400 2700 2    50   Input ~ 0
+Text HLabel 1050 2200 0    50   Input ~ 0
 FAN4_PWM
-Wire Wire Line
-	1400 2700 1300 2700
-$Comp
-L Connector:Conn_01x04_Male J?
-U 1 1 61CC4908
-P 2450 2550
-AR Path="/61CC4908" Ref="J?"  Part="1" 
-AR Path="/61C7C7AC/61CC4908" Ref="J?"  Part="1" 
-AR Path="/61C8FEA5/61CC4908" Ref="J?"  Part="1" 
-AR Path="/61C90137/61CC4908" Ref="J?"  Part="1" 
-AR Path="/61C90290/61CC4908" Ref="J?"  Part="1" 
-AR Path="/61CB9CE1/61CC4908" Ref="J?"  Part="1" 
-AR Path="/61CBA90E/61CC4908" Ref="J?"  Part="1" 
-AR Path="/61CBB6C5/61CC4908" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CBD8D5/61CC4908" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CBF096/61CC4908" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CBF200/61CC4908" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CBF276/61CC4908" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CBF2DD/61CC4908" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CBF411/61CC4908" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CBF4C9/61CC4908" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CC4908" Ref="J5"  Part="1" 
-F 0 "J5" H 2558 2831 50  0000 C CNN
-F 1 "Conn_01x04_Male" H 2558 2740 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Horizontal" H 2450 2550 50  0001 C CNN
-F 3 "~" H 2450 2550 50  0001 C CNN
-	1    2450 2550
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:GND #PWR?
-U 1 1 61CC490E
-P 3100 2450
-AR Path="/61CC490E" Ref="#PWR?"  Part="1" 
-AR Path="/61C7C7AC/61CC490E" Ref="#PWR?"  Part="1" 
-AR Path="/61C8FEA5/61CC490E" Ref="#PWR?"  Part="1" 
-AR Path="/61C90137/61CC490E" Ref="#PWR?"  Part="1" 
-AR Path="/61C90290/61CC490E" Ref="#PWR?"  Part="1" 
-AR Path="/61CB9CE1/61CC490E" Ref="#PWR?"  Part="1" 
-AR Path="/61CBA90E/61CC490E" Ref="#PWR?"  Part="1" 
-AR Path="/61CBB6C5/61CC490E" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBD8D5/61CC490E" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF096/61CC490E" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF200/61CC490E" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF276/61CC490E" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF2DD/61CC490E" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF411/61CC490E" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF4C9/61CC490E" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CC490E" Ref="#PWR028"  Part="1" 
-F 0 "#PWR028" H 3100 2200 50  0001 C CNN
-F 1 "GND" V 3105 2322 50  0000 R CNN
-F 2 "" H 3100 2450 50  0001 C CNN
-F 3 "" H 3100 2450 50  0001 C CNN
-	1    3100 2450
-	0    -1   -1   0   
-$EndComp
-$Comp
-L power:+12V #PWR?
-U 1 1 61CC4914
-P 3100 2550
-AR Path="/61CC4914" Ref="#PWR?"  Part="1" 
-AR Path="/61C7C7AC/61CC4914" Ref="#PWR?"  Part="1" 
-AR Path="/61C8FEA5/61CC4914" Ref="#PWR?"  Part="1" 
-AR Path="/61C90137/61CC4914" Ref="#PWR?"  Part="1" 
-AR Path="/61C90290/61CC4914" Ref="#PWR?"  Part="1" 
-AR Path="/61CB9CE1/61CC4914" Ref="#PWR?"  Part="1" 
-AR Path="/61CBA90E/61CC4914" Ref="#PWR?"  Part="1" 
-AR Path="/61CBB6C5/61CC4914" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBD8D5/61CC4914" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF096/61CC4914" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF200/61CC4914" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF276/61CC4914" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF2DD/61CC4914" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF411/61CC4914" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF4C9/61CC4914" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CC4914" Ref="#PWR029"  Part="1" 
-F 0 "#PWR029" H 3100 2400 50  0001 C CNN
-F 1 "+12V" V 3115 2678 50  0000 L CNN
-F 2 "" H 3100 2550 50  0001 C CNN
-F 3 "" H 3100 2550 50  0001 C CNN
-	1    3100 2550
-	0    1    1    0   
-$EndComp
-Wire Wire Line
-	3100 2550 2650 2550
-Wire Wire Line
-	2650 2450 3100 2450
-Text HLabel 2750 2650 2    50   Input ~ 0
-FAN5_RPM
-Wire Wire Line
-	2650 2650 2750 2650
-Text HLabel 2750 2750 2    50   Input ~ 0
+Text HLabel 1050 2350 0    50   Input ~ 0
+FAN4_RPM
+$Sheet
+S 2550 2000 850  650 
+U 61CAFAB2
+F0 "Fan 5" 50
+F1 "fan_connector.sch" 50
+F2 "PWM_IN" I L 2550 2200 50 
+F3 "RPM_OUT" O L 2550 2350 50 
+F4 "PWM_SWITCH" I L 2550 2500 50 
+$EndSheet
+Text HLabel 2550 2200 0    50   Input ~ 0
 FAN5_PWM
-Wire Wire Line
-	2750 2750 2650 2750
-$Comp
-L Connector:Conn_01x04_Male J?
-U 1 1 61CC4CCE
-P 3950 2550
-AR Path="/61CC4CCE" Ref="J?"  Part="1" 
-AR Path="/61C7C7AC/61CC4CCE" Ref="J?"  Part="1" 
-AR Path="/61C8FEA5/61CC4CCE" Ref="J?"  Part="1" 
-AR Path="/61C90137/61CC4CCE" Ref="J?"  Part="1" 
-AR Path="/61C90290/61CC4CCE" Ref="J?"  Part="1" 
-AR Path="/61CB9CE1/61CC4CCE" Ref="J?"  Part="1" 
-AR Path="/61CBA90E/61CC4CCE" Ref="J?"  Part="1" 
-AR Path="/61CBB6C5/61CC4CCE" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CBD8D5/61CC4CCE" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CBF096/61CC4CCE" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CBF200/61CC4CCE" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CBF276/61CC4CCE" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CBF2DD/61CC4CCE" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CBF411/61CC4CCE" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CBF4C9/61CC4CCE" Ref="J?"  Part="1" 
-AR Path="/61CBD2D4/61CC4CCE" Ref="J6"  Part="1" 
-F 0 "J6" H 4058 2831 50  0000 C CNN
-F 1 "Conn_01x04_Male" H 4058 2740 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Horizontal" H 3950 2550 50  0001 C CNN
-F 3 "~" H 3950 2550 50  0001 C CNN
-	1    3950 2550
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:GND #PWR?
-U 1 1 61CC4CD4
-P 4600 2450
-AR Path="/61CC4CD4" Ref="#PWR?"  Part="1" 
-AR Path="/61C7C7AC/61CC4CD4" Ref="#PWR?"  Part="1" 
-AR Path="/61C8FEA5/61CC4CD4" Ref="#PWR?"  Part="1" 
-AR Path="/61C90137/61CC4CD4" Ref="#PWR?"  Part="1" 
-AR Path="/61C90290/61CC4CD4" Ref="#PWR?"  Part="1" 
-AR Path="/61CB9CE1/61CC4CD4" Ref="#PWR?"  Part="1" 
-AR Path="/61CBA90E/61CC4CD4" Ref="#PWR?"  Part="1" 
-AR Path="/61CBB6C5/61CC4CD4" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBD8D5/61CC4CD4" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF096/61CC4CD4" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF200/61CC4CD4" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF276/61CC4CD4" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF2DD/61CC4CD4" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF411/61CC4CD4" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF4C9/61CC4CD4" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CC4CD4" Ref="#PWR030"  Part="1" 
-F 0 "#PWR030" H 4600 2200 50  0001 C CNN
-F 1 "GND" V 4605 2322 50  0000 R CNN
-F 2 "" H 4600 2450 50  0001 C CNN
-F 3 "" H 4600 2450 50  0001 C CNN
-	1    4600 2450
-	0    -1   -1   0   
-$EndComp
-$Comp
-L power:+12V #PWR?
-U 1 1 61CC4CDA
-P 4600 2550
-AR Path="/61CC4CDA" Ref="#PWR?"  Part="1" 
-AR Path="/61C7C7AC/61CC4CDA" Ref="#PWR?"  Part="1" 
-AR Path="/61C8FEA5/61CC4CDA" Ref="#PWR?"  Part="1" 
-AR Path="/61C90137/61CC4CDA" Ref="#PWR?"  Part="1" 
-AR Path="/61C90290/61CC4CDA" Ref="#PWR?"  Part="1" 
-AR Path="/61CB9CE1/61CC4CDA" Ref="#PWR?"  Part="1" 
-AR Path="/61CBA90E/61CC4CDA" Ref="#PWR?"  Part="1" 
-AR Path="/61CBB6C5/61CC4CDA" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBD8D5/61CC4CDA" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF096/61CC4CDA" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF200/61CC4CDA" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF276/61CC4CDA" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF2DD/61CC4CDA" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF411/61CC4CDA" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CBF4C9/61CC4CDA" Ref="#PWR?"  Part="1" 
-AR Path="/61CBD2D4/61CC4CDA" Ref="#PWR031"  Part="1" 
-F 0 "#PWR031" H 4600 2400 50  0001 C CNN
-F 1 "+12V" V 4615 2678 50  0000 L CNN
-F 2 "" H 4600 2550 50  0001 C CNN
-F 3 "" H 4600 2550 50  0001 C CNN
-	1    4600 2550
-	0    1    1    0   
-$EndComp
-Wire Wire Line
-	4600 2550 4150 2550
-Wire Wire Line
-	4150 2450 4600 2450
-Text HLabel 4250 2650 2    50   Input ~ 0
-FAN6_RPM
-Wire Wire Line
-	4150 2650 4250 2650
-Text HLabel 4250 2750 2    50   Input ~ 0
+Text HLabel 2550 2350 0    50   Input ~ 0
+FAN5_RPM
+$Sheet
+S 4000 1900 850  650 
+U 61CAFCBB
+F0 "Fan 6" 50
+F1 "fan_connector.sch" 50
+F2 "PWM_IN" I L 4000 2100 50 
+F3 "RPM_OUT" O L 4000 2250 50 
+F4 "PWM_SWITCH" I L 4000 2400 50 
+$EndSheet
+Text HLabel 4000 2100 0    50   Input ~ 0
 FAN6_PWM
-Wire Wire Line
-	4250 2750 4150 2750
+Text HLabel 4000 2250 0    50   Input ~ 0
+FAN6_RPM
+Text HLabel 1100 1350 0    50   Input ~ 0
+FAN1_SWITCH
+Text HLabel 2450 1350 0    50   Input ~ 0
+FAN2_SWITCH
+Text HLabel 3800 1350 0    50   Input ~ 0
+FAN3_SWITCH
+Text HLabel 1050 2500 0    50   Input ~ 0
+FAN4_SWITCH
+Text HLabel 2550 2500 0    50   Input ~ 0
+FAN5_SWITCH
+Text HLabel 4000 2400 0    50   Input ~ 0
+FAN6_SWITCH
 $EndSCHEMATC
