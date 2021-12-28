@@ -86,4 +86,6 @@ Text Label 2550 2250 2    50   ~ 0
 PWM_SWITCH
 Wire Wire Line
 	2550 2250 2050 2250
+NoConn ~ 3250 1400
+NoConn ~ 4750 1400
 $EndSCHEMATC
