@@ -27,6 +27,9 @@
 #include "config.h"
 
 #include "lib/logf.h"
+
+#include "fan.h"
+
 volatile uint16_t temps[4] = {0};
 
 /**
@@ -84,66 +87,8 @@ enum CONTROL {
 #define MAX_PWM 255
 #define MAX_RPM 3000
 
-typedef struct fan_handle_s {
-	volatile int pwm_percent;
-	volatile int rpm;
-	int is_4pin;
-	int fan_detected;
+static fan_handle_t fans[NUM_FANS];
 
-	volatile TIM_HandleTypeDef* pwm_handle;
-	volatile uint32_t pwm_channel;
-
-	TIM_HandleTypeDef* ic_handle;
-	uint32_t ic_channel;
-	uint32_t ic_channel_active;
-
-	GPIO_TypeDef* power_switch_port;
-	uint16_t power_switch_pin;
-
-	// for input capture
-	volatile uint32_t ic_overflow;
-	volatile uint32_t last_val;
-
-} fan_handle_t;
-
-volatile static fan_handle_t fans[NUM_FANS];
-
-int get_fan_type(int fan_id) {
-	if(fans[fan_id].rpm == 0) {
-		return 0x00;
-	} else if(fans[fan_id].is_4pin) {
-		return 0x02;
-	} else {
-		return 0x01;
-	}
-}
-
-uint16_t get_fan_rpm(int fan_id) {
-	return fans[fan_id].rpm;
-}
-
-uint16_t get_fan_pwm(int fan_id) {
-	return fans[fan_id].pwm_percent;
-}
-
-
-void set_fan_pwm_percentage(uint8_t fan_id, uint8_t pwm_percent) {
-	if(fan_id >= NUM_FANS) return;
-	//current_pwm = DIV_ROUND(MAX_PWM * pwm_percent, 100);
-	volatile TIM_HandleTypeDef* handle = fans[fan_id].pwm_handle;
-	if(handle) {
-		uint16_t pwm = 0;
-		if(pwm_percent > 0) {
-			pwm = handle->Init.Period * (pwm_percent/100.0f) + 0.5;
-			__HAL_TIM_SET_COMPARE(handle, fans[fan_id].pwm_channel, pwm);
-			HAL_GPIO_WritePin(fans[fan_id].power_switch_port, fans[fan_id].power_switch_pin, GPIO_PIN_SET);
-		} else {
-			// Shut down fan
-			HAL_GPIO_WritePin(fans[fan_id].power_switch_port, fans[fan_id].power_switch_pin, GPIO_PIN_RESET);
-		}
-	}
-	fans[fan_id].pwm_percent = pwm_percent;
-}
 
 #define ADC_VREF 3300
 #define ADC_BITS 12
@@ -179,12 +124,12 @@ void on_usb_rx(void* data) {
 			break;
 		case CTL_GET_FAN_CNCT:
 			for(int i = 0; i < NUM_FANS; ++i) {
-				response[i+1] = get_fan_type(i);
+				response[i+1] = get_fan_type(&fans[i]);
 			}
 			break;
 		case CTL_GET_FAN_RPM:
 			{
-				uint16_t rpm = get_fan_rpm(data_8[1]);
+				uint16_t rpm = get_fan_rpm(&fans[data_8[1]]);
 				response[1] = rpm >> 8;
 				response[2] = rpm;
 
@@ -192,7 +137,7 @@ void on_usb_rx(void* data) {
 			break;
 		case CTL_GET_FAN_PWM:
 			{
-				uint16_t pwm = get_fan_pwm(data_8[1]);
+				uint16_t pwm = get_fan_pwm(&fans[data_8[1]]);
 				response[1] = pwm;
 				//response[1] = (pwm*100.0f) / MAX_PWM + 0.5f;
 			}
@@ -201,7 +146,7 @@ void on_usb_rx(void* data) {
 			{
 				uint8_t fan_num = data_8[1];
 				uint8_t percentage = data_8[2];
-				set_fan_pwm_percentage(fan_num, percentage);
+				set_fan_pwm_percentage(&fans[fan_num], percentage);
 			}
 			break;
 		case CTL_GET_TMP:
@@ -266,7 +211,7 @@ void init_fan(int id, TIM_HandleTypeDef* pwm_handle, uint32_t pwm_channel, TIM_H
 	fans[id].power_switch_pin = power_switch_pin;
 
 
-	set_fan_pwm_percentage(id, 25);
+	set_fan_pwm_percentage(&fans[id], 25);
 }
 
 void init_fans() {
