@@ -163,65 +163,16 @@ void on_usb_rx(void* data) {
 	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 }
 
-/**
- * Returns 1 if a 4-pin fan is detected. 0 otherwise
- */
-int fan_detect_4pin(GPIO_TypeDef* pwm_port, uint16_t pwm_pin) {
-	int ret = 0;
-	// enable input
-	GPIO_InitTypeDef GPIO_InitStruct = {0};
-	GPIO_InitStruct.Pin = pwm_pin;
-	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-	HAL_GPIO_Init(pwm_port, &GPIO_InitStruct);
-	
-	// read if is high
-	GPIO_PinState state = HAL_GPIO_ReadPin(pwm_port, pwm_pin);
 
-	if(state == GPIO_PIN_SET) {
-		ret = 1;
-	}
-	
-	// enable output again with prev stats
-	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	HAL_GPIO_Init(pwm_port, &GPIO_InitStruct);
-	
-	return ret;
-}
-
-void init_fan(int id, TIM_HandleTypeDef* pwm_handle, uint32_t pwm_channel, TIM_HandleTypeDef* ic_handle, uint32_t ic_channel, uint32_t ic_active_channel, GPIO_TypeDef* pwm_port, uint16_t pwm_pin, GPIO_TypeDef* power_switch_port, uint16_t power_switch_pin) {
-	// Enable fan power
-	HAL_GPIO_WritePin(power_switch_port, power_switch_pin, GPIO_PIN_SET);
-	HAL_TIM_Base_Start_IT(pwm_handle);
-	HAL_TIM_PWM_Start(pwm_handle, pwm_channel);
-	__HAL_TIM_SET_COMPARE(pwm_handle, pwm_channel, 0);
-
-	HAL_TIM_Base_Start_IT(ic_handle);
-	HAL_TIM_IC_Start_IT(ic_handle, ic_channel);
-
-	fans[id].pwm_handle = pwm_handle;
-	fans[id].pwm_channel = pwm_channel;
-	fans[id].ic_handle = ic_handle;
-	fans[id].ic_channel = ic_channel;
-	fans[id].ic_channel_active = ic_active_channel;
-	fans[id].is_4pin = fan_detect_4pin(pwm_port, pwm_pin);
-	fans[id].power_switch_port = power_switch_port;
-	fans[id].power_switch_pin = power_switch_pin;
-
-
-	set_fan_pwm_percentage(&fans[id], 25);
-}
 
 void init_fans() {
 	//TODO: yeah I hate it
-	init_fan(0, FAN1_PWM_TIMER, FAN1_PWM_CHANNEL, FAN1_IC_TIMER, FAN1_IC_CHANNEL, FAN1_IC_CHANNEL_ACTIVE, FAN1_PWM_PORT, FAN1_PWM_PIN, FAN1_POWER_SWITCH_PORT, FAN1_POWER_SWITCH_PIN);
-	init_fan(1, FAN2_PWM_TIMER, FAN2_PWM_CHANNEL, FAN2_IC_TIMER, FAN2_IC_CHANNEL, FAN2_IC_CHANNEL_ACTIVE, FAN2_PWM_PORT, FAN2_PWM_PIN, FAN2_POWER_SWITCH_PORT, FAN2_POWER_SWITCH_PIN);
-	init_fan(2, FAN3_PWM_TIMER, FAN3_PWM_CHANNEL, FAN3_IC_TIMER, FAN3_IC_CHANNEL, FAN3_IC_CHANNEL_ACTIVE, FAN3_PWM_PORT, FAN3_PWM_PIN, FAN3_POWER_SWITCH_PORT, FAN3_POWER_SWITCH_PIN);
-	init_fan(3, FAN4_PWM_TIMER, FAN4_PWM_CHANNEL, FAN4_IC_TIMER, FAN4_IC_CHANNEL, FAN4_IC_CHANNEL_ACTIVE, FAN4_PWM_PORT, FAN4_PWM_PIN, FAN4_POWER_SWITCH_PORT, FAN4_POWER_SWITCH_PIN);
-	init_fan(4, FAN5_PWM_TIMER, FAN5_PWM_CHANNEL, FAN5_IC_TIMER, FAN5_IC_CHANNEL, FAN5_IC_CHANNEL_ACTIVE, FAN5_PWM_PORT, FAN5_PWM_PIN, FAN5_POWER_SWITCH_PORT, FAN5_POWER_SWITCH_PIN);
-	init_fan(5, FAN6_PWM_TIMER, FAN6_PWM_CHANNEL, FAN6_IC_TIMER, FAN6_IC_CHANNEL, FAN6_IC_CHANNEL_ACTIVE, FAN6_PWM_PORT, FAN6_PWM_PIN, FAN6_POWER_SWITCH_PORT, FAN6_POWER_SWITCH_PIN);
+	init_fan(&fans[0], FAN1_PWM_TIMER, FAN1_PWM_CHANNEL, FAN1_IC_TIMER, FAN1_IC_CHANNEL, FAN1_IC_CHANNEL_ACTIVE, FAN1_PWM_PORT, FAN1_PWM_PIN, FAN1_POWER_SWITCH_PORT, FAN1_POWER_SWITCH_PIN);
+	init_fan(&fans[1], FAN2_PWM_TIMER, FAN2_PWM_CHANNEL, FAN2_IC_TIMER, FAN2_IC_CHANNEL, FAN2_IC_CHANNEL_ACTIVE, FAN2_PWM_PORT, FAN2_PWM_PIN, FAN2_POWER_SWITCH_PORT, FAN2_POWER_SWITCH_PIN);
+	init_fan(&fans[2], FAN3_PWM_TIMER, FAN3_PWM_CHANNEL, FAN3_IC_TIMER, FAN3_IC_CHANNEL, FAN3_IC_CHANNEL_ACTIVE, FAN3_PWM_PORT, FAN3_PWM_PIN, FAN3_POWER_SWITCH_PORT, FAN3_POWER_SWITCH_PIN);
+	init_fan(&fans[3], FAN4_PWM_TIMER, FAN4_PWM_CHANNEL, FAN4_IC_TIMER, FAN4_IC_CHANNEL, FAN4_IC_CHANNEL_ACTIVE, FAN4_PWM_PORT, FAN4_PWM_PIN, FAN4_POWER_SWITCH_PORT, FAN4_POWER_SWITCH_PIN);
+	init_fan(&fans[4], FAN5_PWM_TIMER, FAN5_PWM_CHANNEL, FAN5_IC_TIMER, FAN5_IC_CHANNEL, FAN5_IC_CHANNEL_ACTIVE, FAN5_PWM_PORT, FAN5_PWM_PIN, FAN5_POWER_SWITCH_PORT, FAN5_POWER_SWITCH_PIN);
+	init_fan(&fans[5], FAN6_PWM_TIMER, FAN6_PWM_CHANNEL, FAN6_IC_TIMER, FAN6_IC_CHANNEL, FAN6_IC_CHANNEL_ACTIVE, FAN6_PWM_PORT, FAN6_PWM_PIN, FAN6_POWER_SWITCH_PORT, FAN6_POWER_SWITCH_PIN);
 }
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {

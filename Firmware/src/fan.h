@@ -26,6 +26,7 @@ typedef struct fan_handle_s {
 
 } fan_handle_t;
 
+void init_fan(fan_handle_t* fan, TIM_HandleTypeDef* pwm_handle, uint32_t pwm_channel, TIM_HandleTypeDef* ic_handle, uint32_t ic_channel, uint32_t ic_active_channel, GPIO_TypeDef* pwm_port, uint16_t pwm_pin, GPIO_TypeDef* power_switch_port, uint16_t power_switch_pin);
 int get_fan_type(fan_handle_t* fan);
 uint16_t get_fan_rpm(fan_handle_t* fan);
 uint16_t get_fan_pwm(fan_handle_t* fan);
