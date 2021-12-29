@@ -1,12 +1,15 @@
 #include "STM32F1/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio.h"
+#include "adc.h"
 #include "stm32f1xx.h"
 #include "STM32F1/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash.h"
+#include <cmsis_gcc.h>
 #include <stm32f103xb.h>
 #include <stm32f1xx_hal.h>
 #include <stm32f1xx_hal_conf.h>
 #include <main.h>
 
 #include "STM32F1/Inc/usbd_custom_hid_if.h"
+#include "stm32f1xx_hal_adc.h"
 #include "stm32f1xx_hal_tim.h"
 
 #include <gpio.h>
@@ -15,6 +18,9 @@
 #include <string.h>
 
 #include "config.h"
+
+#include "lib/logf.h"
+volatile uint16_t temps[4] = {0};
 
 /**
  * Notes Fan:
@@ -39,6 +45,7 @@ extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim4;
+extern ADC_HandleTypeDef hadc1;
 
 enum CONTROL {
 	CTL_GET_TMP_CNCT = 0x10,
@@ -131,8 +138,23 @@ void set_fan_pwm_percentage(uint8_t fan_id, uint8_t pwm_percent) {
 	fans[fan_id].pwm_percent = pwm_percent;
 }
 
+#define ADC_VREF 3300
+#define ADC_BITS 12
+#define TEMP_R1 10000
+#define TEMP1_COEFFA 1.02440469e-03
+#define TEMP1_COEFFB 2.06924335e-04
+#define TEMP1_COEFFC 5.07042776e-06
+
+float steinhart(int res, float a0, float a1, float a2) {
+	float res_log = logf(res);
+	return 1. / (a0 + a1 * res_log + a2 * res_log*res_log);
+}
+
 uint16_t get_temp(int temp_id) {
-	return 5200;
+	int voltage_mv = ((float)ADC_VREF/(1 << ADC_BITS)) * temps[temp_id]; 
+	int resistance = TEMP_R1 * (1/(((float)ADC_VREF/voltage_mv) - 1));
+	float temp_k = steinhart(resistance, TEMP1_COEFFA, TEMP1_COEFFB, TEMP1_COEFFC);
+	return (temp_k - 275.15)*100;
 }
 
 
@@ -282,16 +304,22 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
 	}
 }
 
+void read_adc() {
+	//HAL_ADC_Start_IT(&hadc1);
+	HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&temps, 4);
+}
+
 int main() {
 	for(int i = 0; i < sizeof(fan_handle_t) * NUM_FANS; ++i) {
 		*((volatile uint8_t*)fans+i) = 0;
 	}
 	init_cubemx();
+	HAL_ADCEx_Calibration_Start(&hadc1);
+	HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&temps, 4);
+	
 	
 	/**
 	 * TODO:
-	 * 	add disable pin
-	 * 		make it work with 3 and 4 pin fans
 	 * 	push usb commands in a queue
 	 * 		less volatile needed
 	 * 		same possible for ic?
@@ -301,5 +329,5 @@ int main() {
 	while(42) {
 		__WFI();
 	}
-
 }
+

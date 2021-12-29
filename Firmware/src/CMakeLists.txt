@@ -23,6 +23,7 @@ find_package(HAL COMPONENTS
 	TIM
 	UART
 	I2C
+	DMA
 
 	STM32F1
 	REQUIRED)
@@ -43,12 +44,14 @@ INCLUDE_DIRECTORIES(
 SET(PROJECT_SOURCES
 	openfanhub.c
 	xprintf.c
+	lib/logf.c
 	./STM32F1/Src/main.c
 	./STM32F1/Src/tim.c
 	./STM32F1/Src/adc.c
 	./STM32F1/Src/gpio.c
 	./STM32F1/Src/usart.c
 	./STM32F1/Src/i2c.c
+	./STM32F1/Src/dma.c
 	./STM32F1/Src/usb_device.c
 	./STM32F1/Src/usbd_conf.c
 	./STM32F1/Src/usbd_desc.c
@@ -84,6 +87,7 @@ target_link_libraries(openfanhub
 	HAL::STM32::F1::PCDEx
 	HAL::STM32::F1::UART
 	HAL::STM32::F1::I2C
+	HAL::STM32::F1::DMA
 
 	CMSIS::STM32::F103C8
 	STM32::NoSys
