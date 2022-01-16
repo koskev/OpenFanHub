@@ -1643,9 +1643,6 @@
   (junction (at 123.19 42.545) (diameter 0) (color 0 0 0 0)
     (uuid c6e4693b-8d47-4624-84f0-ec8eeecda379)
   )
-  (junction (at 116.205 156.21) (diameter 0) (color 0 0 0 0)
-    (uuid c987ec81-4457-4b7a-9337-e0350e2632c0)
-  )
   (junction (at 221.615 136.525) (diameter 0) (color 0 0 0 0)
     (uuid cd230907-dc28-4298-84e7-b54b8c2d2f4c)
   )
@@ -2189,10 +2186,6 @@
   (wire (pts (xy 39.37 168.275) (xy 52.07 168.275))
     (stroke (width 0) (type default) (color 0 0 0 0))
     (uuid 68e0d61e-65c8-4c96-94f8-a4cd281ea487)
-  )
-  (wire (pts (xy 116.205 156.21) (xy 116.205 154.94))
-    (stroke (width 0) (type default) (color 0 0 0 0))
-    (uuid 6917e486-6a47-4cb2-8222-69af171cd611)
   )
   (wire (pts (xy 184.785 45.72) (xy 210.185 45.72))
     (stroke (width 0) (type default) (color 0 0 0 0))
@@ -6115,40 +6108,40 @@
       (reference "M18") (unit 1) (value "Fan_4pin") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Horizontal")
     )
     (path "/00000000-0000-0000-0000-000061cbd2d4/400d7499-cda1-432f-a720-e9564b76ff05/00000000-0000-0000-0000-000061cfaf6a"
-      (reference "Q1") (unit 1) (value "Q_NMOS_GSD") (footprint "Package_TO_SOT_SMD:SOT-23")
+      (reference "Q1") (unit 1) (value "IRLML2502") (footprint "Package_TO_SOT_SMD:SOT-23")
     )
     (path "/00000000-0000-0000-0000-000061cbd2d4/400d7499-cda1-432f-a720-e9564b76ff05/832da771-3447-4aa3-a1d5-34305654223f"
-      (reference "Q2") (unit 1) (value "AO449") (footprint "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm")
+      (reference "Q2") (unit 1) (value "AO4409") (footprint "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm")
     )
     (path "/00000000-0000-0000-0000-000061cbd2d4/374ddff5-0da3-4c1a-9cf4-3e7dd0779e2b/00000000-0000-0000-0000-000061cfaf6a"
-      (reference "Q3") (unit 1) (value "Q_NMOS_GSD") (footprint "Package_TO_SOT_SMD:SOT-23")
+      (reference "Q3") (unit 1) (value "IRLML2502") (footprint "Package_TO_SOT_SMD:SOT-23")
     )
     (path "/00000000-0000-0000-0000-000061cbd2d4/374ddff5-0da3-4c1a-9cf4-3e7dd0779e2b/832da771-3447-4aa3-a1d5-34305654223f"
-      (reference "Q4") (unit 1) (value "AO449") (footprint "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm")
+      (reference "Q4") (unit 1) (value "AO4409") (footprint "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm")
     )
     (path "/00000000-0000-0000-0000-000061cbd2d4/00000000-0000-0000-0000-000061cbf096/00000000-0000-0000-0000-000061cfaf6a"
-      (reference "Q5") (unit 1) (value "Q_NMOS_GSD") (footprint "Package_TO_SOT_SMD:SOT-23")
+      (reference "Q5") (unit 1) (value "IRLML2502") (footprint "Package_TO_SOT_SMD:SOT-23")
     )
     (path "/00000000-0000-0000-0000-000061cbd2d4/00000000-0000-0000-0000-000061cbf096/832da771-3447-4aa3-a1d5-34305654223f"
-      (reference "Q6") (unit 1) (value "AO449") (footprint "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm")
+      (reference "Q6") (unit 1) (value "AO4409") (footprint "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm")
     )
     (path "/00000000-0000-0000-0000-000061cbd2d4/00000000-0000-0000-0000-000061caed43/00000000-0000-0000-0000-000061cfaf6a"
-      (reference "Q7") (unit 1) (value "Q_NMOS_GSD") (footprint "Package_TO_SOT_SMD:SOT-23")
+      (reference "Q7") (unit 1) (value "IRLML2502") (footprint "Package_TO_SOT_SMD:SOT-23")
     )
     (path "/00000000-0000-0000-0000-000061cbd2d4/00000000-0000-0000-0000-000061caed43/832da771-3447-4aa3-a1d5-34305654223f"
-      (reference "Q8") (unit 1) (value "AO449") (footprint "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm")
+      (reference "Q8") (unit 1) (value "AO4409") (footprint "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm")
     )
     (path "/00000000-0000-0000-0000-000061cbd2d4/00000000-0000-0000-0000-000061caef29/00000000-0000-0000-0000-000061cfaf6a"
-      (reference "Q9") (unit 1) (value "Q_NMOS_GSD") (footprint "Package_TO_SOT_SMD:SOT-23")
+      (reference "Q9") (unit 1) (value "IRLML2502") (footprint "Package_TO_SOT_SMD:SOT-23")
     )
     (path "/00000000-0000-0000-0000-000061cbd2d4/00000000-0000-0000-0000-000061caef29/832da771-3447-4aa3-a1d5-34305654223f"
-      (reference "Q10") (unit 1) (value "AO449") (footprint "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm")
+      (reference "Q10") (unit 1) (value "AO4409") (footprint "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm")
     )
     (path "/00000000-0000-0000-0000-000061cbd2d4/1d324741-d194-41a3-a0ae-42c211141ec7/00000000-0000-0000-0000-000061cfaf6a"
-      (reference "Q11") (unit 1) (value "Q_NMOS_GSD") (footprint "Package_TO_SOT_SMD:SOT-23")
+      (reference "Q11") (unit 1) (value "IRLML2502") (footprint "Package_TO_SOT_SMD:SOT-23")
     )
     (path "/00000000-0000-0000-0000-000061cbd2d4/1d324741-d194-41a3-a0ae-42c211141ec7/832da771-3447-4aa3-a1d5-34305654223f"
-      (reference "Q12") (unit 1) (value "AO449") (footprint "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm")
+      (reference "Q12") (unit 1) (value "AO4409") (footprint "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm")
     )
     (path "/d1b6e4e2-93c5-474c-8caf-ba7ec8209482"
       (reference "R1") (unit 1) (value "10k") (footprint "Resistor_SMD:R_0805_2012Metric")
