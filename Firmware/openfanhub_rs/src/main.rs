@@ -1,20 +1,30 @@
 #![no_std]
 #![no_main]
 
+use cortex_m_semihosting::hprintln;
+use panic_halt as _;
+use usbd_hid::descriptor::{AsInputReport, MouseReport, SerializedDescriptor};
+use usbd_serial::{SerialPort, USB_CLASS_CDC};
+
 use core::cell::RefCell;
+use core::marker::PhantomData;
+use core::usize;
 
 use cortex_m::asm::wfi;
 use cortex_m::interrupt::{free, Mutex};
 use cortex_m::peripheral::NVIC;
-use hal::device::TIM2;
+use hal::device::{GPIOA, TIM2};
+use hal::gpio::{self, gpioa, ErasedPin, Floating, Input, Output, Pin};
 use hal::timer::pwm::Pins;
-use hal::timer::Configuration;
+use hal::timer::{
+    Channel, Configuration, Error, Instance, PwmChannel, Tim1NoRemap, Tim2NoRemap, Tim3NoRemap,
+};
 use hal::usb::Peripheral;
-use panic_halt as _;
+use num_traits::FromPrimitive;
 
 use cortex_m_rt::entry;
-use embedded_hal::digital::v2::{InputPin, OutputPin};
-use embedded_hal::Pwm;
+use embedded_hal::digital::v2::{InputPin, IoPin, OutputPin};
+use embedded_hal::PwmPin;
 use hal::pac::interrupt;
 use hal::{pac, prelude::*, timer::Timer};
 use stm32_usbd::UsbBus;
@@ -23,9 +33,36 @@ use usb_device::class_prelude::UsbBusAllocator;
 use usb_device::prelude::*;
 use usbd_hid::hid_class::HIDClass;
 
+use enum_primitive_derive::Primitive;
+
+use serde::Serialize;
+
+use paste::paste;
+
+mod fan;
+mod fanmanager;
+mod targets;
 mod timer;
 
+use fan::Fan;
+use fanmanager::FanManager;
+use targets::*;
+
 const USB_CLASS_HID: u8 = 0x03;
+
+const NUM_TEMP_SENSORS: usize = 4;
+const NUM_FANS: usize = 6; // XXX: Limited by driver
+
+#[derive(Primitive)]
+enum UsbControl {
+    GetTmpCnct = 0x10,
+    GetTmp = 0x11,
+    GetFanCnct = 0x20,
+    GetFanRpm = 0x21,
+    GetFanPwm = 0x22,
+    SetFanFpwm = 0x23,
+    SetFanTarget = 0x24,
+}
 
 const USB_DESCRIPTOR: &[u8] = &[
     0x05, 0x01, // Usage Page (Generic Desktop)
@@ -48,9 +85,27 @@ const USB_DESCRIPTOR: &[u8] = &[
     0xC0, // End Collection
 ];
 
-//struct FanHubReport {
-//    bytes: [u8; 16],
-//}
+macro_rules! get_gpio {
+    ($port: expr, $pin: expr ) => {{
+        let pin: Pin<$port, $pin> = hal::gpio::Pin {
+            mode: Default::default(),
+        };
+        pin
+    }};
+}
+
+#[derive(Serialize)]
+struct FanHubReport {
+    bytes: [u8; 16],
+}
+
+impl FanHubReport {
+    fn new() -> Self {
+        Self { bytes: [0; 16] }
+    }
+}
+
+impl AsInputReport for FanHubReport {}
 //
 //impl AsRef<[u8]> for FanHubReport {
 //    fn as_ref(&self) -> &[u8] {
@@ -62,141 +117,102 @@ const USB_DESCRIPTOR: &[u8] = &[
 //    const DESCRIPTOR: &'static [u8] = USB_DESCRIPTOR;
 //}
 
-struct Fan<OP, PWM, IC> {
-    pwm_percent: u8,
-    rpm: u16,
-    is_4pin: bool,
-    fan_detected: bool,
-
-    power_switch_pin: OP,
-    pwm_output: PWM,
-    ic_handle: Timer<IC>,
-
-    //TIM_HandleTypeDef* ic_handle;
-    ic_channel: u32,
-    //uint32_t ic_channel;
-    //uint32_t ic_channel_active;
-
-    //// for input capture
-    ic_overflow: u32,
-    last_val: u32,
+enum TimerTypeF103 {
+    TIM2(Timer<TIM2>),
 }
 
-enum FanType {
-    NoFan,
-    Fan,
-    Fan4pin,
+enum PwmChannelTypeF103 {
+    TIM2(PwmChannel<TIM2, 1>),
+    TIM3(PwmChannel<TIM2, 2>),
 }
 
-impl<OP, PWM, IC> Fan<OP, PWM, IC>
-where
-    OP: OutputPin,
-    PWM: Pwm,
-{
-    fn get_fan_type(&self) -> FanType {
-        if self.rpm == 0 {
-            FanType::NoFan
-        } else if self.is_4pin {
-            FanType::Fan4pin
-        } else {
-            FanType::Fan
+macro_rules! create_ic {
+    ($timer: ident, $ccmr_num: expr, $capture_num: expr, $ti_num: expr) => {
+        let t = unsafe { &*<$timer>::ptr() };
+        // set output channel
+        paste! {
+            t.[<ccmr $ccmr_num _input>]()
+                .modify(|_r, w| w.[<cc $capture_num s>]().[<ti $ti_num>]());
+            // enable IC
+
+            t.ccer.modify(|_r, w| w.[<cc $capture_num e>]().set_bit());
+
         }
-    }
+    };
+}
 
-    fn get_fan_rpm(&self) -> u16 {
-        self.rpm
-    }
+pub struct InputCapture<TIM, const ccmr_num: usize, const capture_num: usize, const ti_num: usize> {
+    _marker: PhantomData<TIM>,
+}
 
-    fn get_fan_pwm(&self) -> u8 {
-        self.pwm_percent
-    }
+//impl InputCapture<TIM2, 1, 1, 1> {
+//    fn new() -> Self {
+//        //create_ic!(TIM2, RegisterNum, CaptureNume, TiNum);
+//        create_ic!(TIM2, 1, 1, 1);
+//        Self {
+//            _marker: PhantomData,
+//        }
+//    }
+//}
 
-    fn new(power_pin: OP, pwm_pin: PWM, ic_pin: Timer<IC>, ic_channel: u32) -> Self {
-        Self {
-            pwm_percent: 0,
-            rpm: 0,
-            is_4pin: false,
-            fan_detected: false,
-            power_switch_pin: power_pin,
-            pwm_output: pwm_pin,
-            ic_handle: ic_pin,
-            ic_channel,
-            ic_overflow: 0,
-            last_val: 0,
+macro_rules! impl_ic_new {
+    ($tim: ident, $ccmr: expr, $capture: expr, $ti: expr) => {
+        impl InputCapture<$tim, $ccmr, $capture, $ti> {
+            fn new() -> Self {
+                //create_ic!(TIM2, RegisterNum, CaptureNume, TiNum);
+                //create_ic!($tim, $ccmr, $capture, $ti);
+                Self {
+                    _marker: PhantomData,
+                }
+            }
+
+            fn enable_ic(&self) {
+                let t = unsafe { &*<$tim>::ptr() };
+                // set output channel
+                paste! {
+                    t.[<ccmr $ccmr _input>]()
+                        .modify(|_r, w| w.[<cc $capture s>]().[<ti $ti>]());
+                    // enable IC
+
+                    t.ccer.modify(|_r, w| w.[<cc $capture e>]().set_bit());
+
+                }
+            }
         }
-    }
+    };
+}
 
-    fn set_fan_pwm_percentage(&mut self, pwm_percent: u8) {
-        if pwm_percent > 0 {
-            //let pwm = self.pwm_output.get_period().unwrap();
-            //* (pwm_percent/100) + 0.5;
-            //self.pwm_output.set_duty(channel, duty);
-            //self.power_switch_pin.set_high();
-            //pwm = handle->Init.Period * (pwm_percent/100.0f) + 0.5;
-            //__HAL_TIM_SET_COMPARE(handle, fan->pwm_channel, pwm);
-            //HAL_GPIO_WritePin(fan->power_switch_port, fan->power_switch_pin, GPIO_PIN_SET);
-        } else {
-            // Shut down fan
-            self.power_switch_pin.set_low();
+impl_ic_new!(TIM2, 1, 1, 2);
+impl_ic_new!(TIM2, 1, 1, 1);
+
+macro_rules! REGISTER_FAN {
+    ($num: expr, $pwm_timer: ty, $pwm_channel: expr) => {
+        paste! {
+            mod [< fan $num >] {
+                fn [< init_fan_ $num  >] () {
+
+                }
+            }
         }
-        self.pwm_percent = pwm_percent;
-    }
+    };
 }
 
 struct FanHubUsb {
     device: UsbDevice<'static, UsbBus<Peripheral>>,
-    hid: Hid<'static, FanHubReport, UsbBus<Peripheral>>,
+    hid: HIDClass<'static, UsbBus<Peripheral>>,
 }
 
 static USB: Mutex<RefCell<Option<FanHubUsb>>> = Mutex::new(RefCell::new(None));
 
+static FANMANAGER: Mutex<RefCell<Option<FanManagerType>>> = Mutex::new(RefCell::new(None));
+
 #[entry]
 fn main() -> ! {
-    let p = pac::Peripherals::take().unwrap();
-
-    let mut flash = p.FLASH.constrain();
-    let rcc = p.RCC.constrain();
-
-    let clocks = rcc
-        .cfgr
-        .use_hse(8.MHz())
-        .sysclk(72.MHz())
-        .pclk1(36.MHz())
-        .freeze(&mut flash.acr);
-
-    assert!(clocks.usbclk_valid());
-
-    let mut afio = p.AFIO.constrain();
-    let mut dbg = p.DBGMCU;
-
-    let gpioa = p.GPIOA.split();
-    let mut gpiob = p.GPIOB.split();
-
-    // TIM3
-    let pwm_pin = gpiob.pb5.into_alternate_push_pull(&mut gpiob.crl);
-    //let power_pin = gpiob.pb5.into_push_pull_output(&mut gpiob.crl);
-    //let input_pin = gpioa.pa1;
-
-    let tim2 = &p.TIM2;
-    // TODO: set correct registers
-    tim2.ccer.modify(|_r, w| w.cc1e().set_bit());
-
-    let pwm = Timer::new(p.TIM3, &clocks).pwm_hz(pwm_pin, &mut afio.mapr, 1.kHz());
-
-    let max = pwm.get_max_duty();
-
-    let mut pwm_channels = pwm.split();
-
-    //    let fan = Fan::new(power_pin, pwm, pwm_input);
-
-    // USB
-    let usb_dm = gpioa.pa11;
-    let usb_dp = gpioa.pa12;
-    let usb = Peripheral {
-        usb: p.USB,
-        pin_dm: usb_dm,
-        pin_dp: usb_dp,
-    };
+    let (manager, usb) = init();
+    hprintln!("Hello");
+    free(|cs| {
+        FANMANAGER.borrow(&cs).borrow_mut().replace(manager);
+    });
 
     static mut USB_BUS: Option<UsbBusAllocator<UsbBus<Peripheral>>> = None;
     free(move |cs| {
@@ -205,13 +221,21 @@ fn main() -> ! {
             USB_BUS = Some(usb_bus);
             USB_BUS.as_ref().unwrap()
         };
-        let usb_dev = UsbDeviceBuilder::new(&usb_bus, UsbVidPid(0x1b1c, 0x0c10))
-            .manufacturer("OpenFanHub")
+
+        let mut hid = HIDClass::new(&usb_bus, USB_DESCRIPTOR, 10);
+
+        let mut usb_dev = UsbDeviceBuilder::new(&usb_bus, UsbVidPid(0x1b1c, 0x0c10))
+            .manufacturer("Koskev")
             .product("OpenFanHub")
+            .serial_number("TEST")
             .device_class(USB_CLASS_HID)
             .build();
 
-        let hid = HIDClass::new(&usb_bus, USB_DESCRIPTOR, 10);
+        //loop {
+        //    if !usb_dev.poll(&mut [&mut hid]) {
+        //        continue;
+        //    }
+        //}
 
         let usb = FanHubUsb {
             device: usb_dev,
@@ -223,11 +247,12 @@ fn main() -> ! {
     // unmask nvic
     unsafe {
         NVIC::unmask(interrupt::TIM2);
-        NVIC::unmask(interrupt::USB_HP_CAN_TX);
+        //NVIC::unmask(interrupt::USB_HP_CAN_TX);
         NVIC::unmask(interrupt::USB_LP_CAN_RX0);
     }
 
     loop {
+        //usb_interrupt();
         wfi();
     }
 }
@@ -236,6 +261,60 @@ fn usb_interrupt() {
     free(move |cs| {
         let mut borrow = USB.borrow(&cs).borrow_mut();
         let usb = &mut borrow.as_mut().unwrap();
+        let mut data: [u8; 20] = [0; 20];
+        let res = usb.hid.pull_raw_output(&mut data);
+        let mut report = FanHubReport::new();
+        match res {
+            Ok(_size) => {
+                hprintln!("Int");
+                let cmd = data[0];
+                let e = UsbControl::from_u8(cmd);
+                hprintln!("{}", cmd);
+                match e {
+                    Some(ctrl) => match ctrl {
+                        UsbControl::GetTmp => {}
+
+                        UsbControl::GetFanRpm => {
+                            let manager = FANMANAGER.borrow(&cs).borrow();
+                            let fan_num = data[1];
+                            let fan = manager.as_ref().unwrap().get_fan(fan_num as usize);
+                            let rpm = fan.get_fan_rpm();
+                            report.bytes[1] = (rpm >> 8) as u8;
+                            report.bytes[2] = rpm as u8;
+                        }
+                        UsbControl::GetFanPwm => {
+                            let manager = FANMANAGER.borrow(&cs).borrow();
+                            let fan_num = data[1];
+                            let fan = manager.as_ref().unwrap().get_fan(fan_num as usize);
+                            let pwm = fan.get_fan_pwm();
+                            report.bytes[1] = pwm;
+                        }
+                        UsbControl::GetTmpCnct => {
+                            // fill byte 1-4 with 1 if a temp probe is present
+                            for i in 0..NUM_TEMP_SENSORS {
+                                report.bytes[i + 1] = 1;
+                            }
+                        }
+                        UsbControl::GetFanCnct => {
+                            for i in 0..NUM_FANS {
+                                report.bytes[i + 1] = 1; // TODO: use get_fan_type
+                            }
+                        }
+                        UsbControl::SetFanFpwm => {
+                            let mut manager = FANMANAGER.borrow(&cs).borrow_mut();
+                            let fan_num = data[1];
+                            let percentage = data[2];
+                            let fan = manager.as_mut().unwrap().get_fan_mut(fan_num as usize);
+                            fan.set_fan_pwm_percentage(percentage);
+                        }
+                        UsbControl::SetFanTarget => (),
+                    },
+                    None => (),
+                }
+            }
+            Err(_e) => (),
+        }
+        let _ = usb.hid.push_input(&report);
         usb.device.poll(&mut [&mut usb.hid]);
     });
 }

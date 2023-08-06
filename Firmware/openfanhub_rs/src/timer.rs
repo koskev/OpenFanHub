@@ -5,6 +5,11 @@ struct TimerProperties {
     status_register: u32,
 }
 
+fn init_ic() {
+    let timer = unsafe { &*TIM2::ptr() };
+    timer.ccer.modify(|_r, w| w.cc1e().set_bit());
+}
+
 #[interrupt]
 fn TIM2() {
     let timer = unsafe { &*TIM2::ptr() };
