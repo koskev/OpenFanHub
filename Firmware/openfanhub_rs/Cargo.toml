@@ -1,0 +1,28 @@
+[package]
+name = "openfanhub_rs"
+version = "0.1.0"
+edition = "2021"
+
+[profile.release]
+opt-level = 'z' # turn on maximum optimizations. We only have 64kB
+lto = true      # Link-time-optimizations for further size reduction
+
+[dependencies]
+cortex-m = "0.7.7"
+cortex-m-rt = "0.7.3"
+cortex-m-semihosting = "0.5.0"
+embedded-hal = { version = "0.2.7", features = ["unproven"] }
+enum-primitive-derive = "0.2.2"
+nb = "1.1.0"
+num-derive = "0.4.0"
+num-traits = { version = "0.2.16", default-features = false }
+panic-halt = "0.2.0"
+paste = "1.0.14"
+serde = { version = "1.0.175", default-features = false, features = ["derive"] }
+stm32-usbd = "0.6.0"
+stm32f1xx-hal = { version = "0.10.0", features = ["stm32f103", "rt", "medium"] }
+usb-device = "0.2.9"
+usbd-hid = "0.6.1"
+usbd-serial = "0.1.1"
+
+
