@@ -5,6 +5,7 @@
 #include <main.h>
 
 #include "STM32F1/Inc/usbd_custom_hid_if.h"
+#include "stm32f1xx_hal_tim.h"
 
 #include <gpio.h>
 
@@ -64,23 +65,34 @@ enum CONTROL {
 #define NUM_TEMP_SENSORS 4
 
 
-#define MAX_PWM 65534
+#define MAX_PWM 255
 #define MAX_RPM 3000
 
 typedef struct fan_handle_s {
 	uint8_t pwm_percent;
+	volatile uint16_t rpm;
+
 	TIM_HandleTypeDef* pwm_handle;
 	uint32_t pwm_channel;
+
+	TIM_HandleTypeDef* ic_handle;
+	uint32_t ic_channel;
+	uint32_t ic_channel_active;
+
+	// for input capture
+	volatile uint32_t ic_overflow;
+	volatile uint32_t last_val;
+
 } fan_handle_t;
 
-static fan_handle_t fans[NUM_FANS];
+volatile static fan_handle_t fans[NUM_FANS];
 
 int get_fan_type(int fan_id) {
 	return 0x02;
 }
 
 uint16_t get_fan_rpm(int fan_id) {
-	return (fans[fan_id].pwm_percent/100.0f) * MAX_RPM;
+	return fans[fan_id].rpm;
 }
 
 uint16_t get_fan_pwm(int fan_id) {
@@ -155,33 +167,72 @@ void on_usb_rx(void* data) {
 	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 }
 
-void init_fan(int id, TIM_HandleTypeDef* handle, uint32_t channel) {
-	HAL_TIM_Base_Start_IT(handle);
-	HAL_TIM_PWM_Start(handle, channel);
-	__HAL_TIM_SET_COMPARE(handle, channel, 0);
+void init_fan(int id, TIM_HandleTypeDef* pwm_handle, uint32_t pwm_channel, TIM_HandleTypeDef* ic_handle, uint32_t ic_channel, uint32_t ic_active_channel) {
+	HAL_TIM_Base_Start_IT(pwm_handle);
+	HAL_TIM_PWM_Start(pwm_handle, pwm_channel);
+	__HAL_TIM_SET_COMPARE(pwm_handle, pwm_channel, 0);
 
-	fans[id].pwm_handle = handle;
-	fans[id].pwm_channel = channel;
+	HAL_TIM_Base_Start_IT(ic_handle);
+	HAL_TIM_IC_Start_IT(ic_handle, ic_channel);
+
+	fans[id].pwm_handle = pwm_handle;
+	fans[id].pwm_channel = pwm_channel;
+	fans[id].ic_handle = ic_handle;
+	fans[id].ic_channel = ic_channel;
+	fans[id].ic_channel_active = ic_active_channel;
+
+	fans[id].rpm = 42;
 }
 
 void init_fans() {
-	init_fan(0, &htim2, TIM_CHANNEL_1);
-	init_fan(1, &htim2, TIM_CHANNEL_3);
+	init_fan(0, &htim2, TIM_CHANNEL_1, &htim4, TIM_CHANNEL_4, HAL_TIM_ACTIVE_CHANNEL_4);
+	//TODO: other fans
+}
 
-	init_fan(2, &htim3, TIM_CHANNEL_1);
-	init_fan(3, &htim3, TIM_CHANNEL_3);
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
+	for(int i = 0; i < NUM_FANS; ++i) {
+		volatile fan_handle_t *fan = &fans[i];
+		// XXX: Not sure if we need to compare instance or htim directly. better be safe
+		if(fan->ic_handle->Instance == htim->Instance && fan->ic_channel_active == htim->Channel) {
 
-	init_fan(4, &htim4, TIM_CHANNEL_1);
-	init_fan(5, &htim4, TIM_CHANNEL_3);
+			uint32_t curr_val = HAL_TIM_ReadCapturedValue(fan->ic_handle, fan->ic_channel);
+			uint32_t diff = (curr_val+fan->ic_overflow*htim->Init.Period) - fan->last_val;
+
+
+			if(diff != 0) {
+				uint32_t freq = (72000000.0f/htim->Init.Prescaler)/diff;
+				fan->rpm = freq * 30; // 2 pulses = one rev
+			}
+
+			fan->last_val = curr_val;
+			fan->ic_overflow = 0;
+			break;
+		}
+		fan->rpm = 1;
+
+	}
+
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
+	for(int i = 0; i < NUM_FANS; ++i) {
+		volatile fan_handle_t *fan = &fans[i];
+		if(fan->ic_handle->Instance == htim->Instance) {
+			fans[i].ic_overflow +=1;
+		}
+	}
 }
 
 int main() {
-	memset(fans, 0, sizeof(fan_handle_t) * NUM_FANS);
+	for(int i = 0; i < sizeof(fan_handle_t) * NUM_FANS; ++i) {
+		*((volatile uint8_t*)fans+i) = 0;
+	}
 	init_cubemx();
 	
 	init_fans();
 	
 	set_fan_pwm_percentage(0, 50);
+	set_fan_pwm_percentage(1, 50);
 
 
 	while(42) {
