@@ -92,7 +92,13 @@ typedef struct fan_handle_s {
 volatile static fan_handle_t fans[NUM_FANS];
 
 int get_fan_type(int fan_id) {
-	return 0x02;
+	if(fans[fan_id].rpm == 0) {
+		return 0x00;
+	} else if(fans[fan_id].is_4pin) {
+		return 0x02;
+	} else {
+		return 0x01;
+	}
 }
 
 uint16_t get_fan_rpm(int fan_id) {
