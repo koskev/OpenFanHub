@@ -42,13 +42,15 @@ SET(PROJECT_SOURCES
 	openfanhub.c
 	xprintf.c
 	./STM32F1/Src/main.c
-	./STM32F1/Src/tim.c
-	./STM32F1/Src/adc.c
+	#./STM32F1/Src/tim.c
+	#./STM32F1/Src/adc.c
 	./STM32F1/Src/gpio.c
 	./STM32F1/Src/usb_device.c
 	./STM32F1/Src/usbd_conf.c
 	./STM32F1/Src/usbd_desc.c
 	./STM32F1/Src/usbd_custom_hid_if.c
+	./STM32F1/Src/stm32f1xx_it.c
+	./STM32F1/Src/stm32f1xx_hal_msp.c
 	
 	#./STM32F1/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c
 	#./STM32F1/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio_ex.c
