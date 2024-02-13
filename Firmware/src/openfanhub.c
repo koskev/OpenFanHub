@@ -19,7 +19,7 @@ enum CONTROL {
 	CTL_GET_FAN_CNCT = 0x20,
 	CTL_GET_FAN_RPM = 0x21,
 	CTL_GET_FAN_PWM = 0x22,
-	CTL_SET_FAN_FPWM = 0x23,
+	CTL_SET_FAN_RPM = 0x23,
 	CTL_SET_FAN_TARGET = 0x24
 };
 
@@ -39,6 +39,10 @@ uint16_t get_fan_rpm(int fan_id) {
 	return 1500;
 }
 
+uint16_t get_temp(int temp_id) {
+	return 5200;
+}
+
 
 void on_usb_rx(void* data) {
 	uint8_t* data_8 = (uint8_t*) data;
@@ -48,6 +52,9 @@ void on_usb_rx(void* data) {
 	switch(command_id) {
 		case CTL_GET_TMP_CNCT:
 			// fill byte 1-4 with 1 if a temp probe is present
+			for(int i = 0; i < 4; ++i) {
+				response[i+1] = 0x01;
+			}
 			break;
 		case CTL_GET_FAN_CNCT:
 			for(int i = 0; i < 6; ++i) {
@@ -63,8 +70,11 @@ void on_usb_rx(void* data) {
 			}
 			break;
 		case CTL_GET_TMP:
-			response[1] = 0x42;
-			response[2] = 0x42;
+			{
+				uint16_t temp = get_temp(data_8[1]);
+				response[1] = temp >> 8;
+				response[2] = temp;
+			}
 			break;
 		default:
 			break;
