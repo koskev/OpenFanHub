@@ -9,23 +9,50 @@
 #include <gpio.h>
 
 #include <stdint.h>
-#include "xprintf.h"
-
+#include <string.h>
 
 extern int8_t USBD_CUSTOM_HID_SendReport_FS ( uint8_t *report,uint16_t len);
-//extern PCD_HandleTypeDef hpcd_USB_FS;
+
+enum CONTROL {
+	CTL_GET_TMP_CNCT = 0x10,
+	CTL_GET_TMP = 0x11,
+	CTL_GET_FAN_CNCT = 0x20,
+	CTL_GET_FAN_RPM = 0x21,
+	CTL_GET_FAN_PWM = 0x22,
+	CTL_SET_FAN_FPWM = 0x23,
+	CTL_SET_FAN_TARGET = 0x24
+};
+
+
 
 #define LED_PORT                GPIOC
 #define LED_PIN                 GPIO_PIN_13
 #define LED_PORT_CLK_ENABLE     __HAL_RCC_GPIOC_CLK_ENABLE
 
-
-//USBD_StatusTypeDef USBD_LL_Transmit(USBD_HandleTypeDef *pdev, uint8_t ep_addr, uint8_t *pbuf, uint16_t size)
-
 void on_usb_rx(void* data) {
+	uint8_t* data_8 = (uint8_t*) data;
 	uint8_t response[16] = {0};
+	memset(response, 0, 16);
+	uint8_t command_id = data_8[0];
+	response[15] = 0x42;
+	switch(command_id) {
+		case CTL_GET_TMP_CNCT:
+			// fill byte 1-4 with 1 if a temp probe is present
+			break;
+		case CTL_GET_FAN_CNCT:
+			break;
+		case CTL_GET_TMP:
+			response[1] = 0x42;
+			response[2] = 0x42;
+
+		default:
+			break;
+	};
+	for(int i = 1; i < 16; ++i){
+		response[i] = 0xEE;
+	}
 	USBD_CUSTOM_HID_SendReport_FS(response, 16);
-	 HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+	//HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 }
 
 int main() {
