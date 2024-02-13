@@ -231,12 +231,6 @@ fn main() -> ! {
             .device_class(USB_CLASS_HID)
             .build();
 
-        //loop {
-        //    if !usb_dev.poll(&mut [&mut hid]) {
-        //        continue;
-        //    }
-        //}
-
         let usb = FanHubUsb {
             device: usb_dev,
             hid,
@@ -247,12 +241,12 @@ fn main() -> ! {
     // unmask nvic
     unsafe {
         NVIC::unmask(interrupt::TIM2);
-        //NVIC::unmask(interrupt::USB_HP_CAN_TX);
+        NVIC::unmask(interrupt::USB_HP_CAN_TX);
         NVIC::unmask(interrupt::USB_LP_CAN_RX0);
     }
 
     loop {
-        //usb_interrupt();
+        usb_interrupt();
         wfi();
     }
 }
@@ -261,15 +255,15 @@ fn usb_interrupt() {
     free(move |cs| {
         let mut borrow = USB.borrow(&cs).borrow_mut();
         let usb = &mut borrow.as_mut().unwrap();
+        usb.device.poll(&mut [&mut usb.hid]);
         let mut data: [u8; 20] = [0; 20];
         let res = usb.hid.pull_raw_output(&mut data);
         let mut report = FanHubReport::new();
         match res {
             Ok(_size) => {
-                hprintln!("Int");
                 let cmd = data[0];
                 let e = UsbControl::from_u8(cmd);
-                hprintln!("{}", cmd);
+                hprintln!("got data {}", cmd);
                 match e {
                     Some(ctrl) => match ctrl {
                         UsbControl::GetTmp => {}
@@ -311,11 +305,10 @@ fn usb_interrupt() {
                     },
                     None => (),
                 }
+                usb.hid.push_input(&report).unwrap();
             }
             Err(_e) => (),
         }
-        let _ = usb.hid.push_input(&report);
-        usb.device.poll(&mut [&mut usb.hid]);
     });
 }
 
