@@ -45,6 +45,7 @@ SET(PROJECT_SOURCES
 	openfanhub.c
 	xprintf.c
 	lib/logf.c
+	fan.c
 	./STM32F1/Src/main.c
 	./STM32F1/Src/tim.c
 	./STM32F1/Src/adc.c
