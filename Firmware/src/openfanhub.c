@@ -67,35 +67,13 @@ enum CONTROL {
 	CTL_SET_FAN_TARGET = 0x24
 };
 
-
-#define DIV_ROUND(dividend, divisor) (\
-		((dividend - 1) > 0 || dividend > 0) ? \
-		((dividend + (divisor / 2)) / divisor) : \
-		((dividend - (divisor / 2)) / divisor) \
-		)
-
-
-
-#define LED_PORT                GPIOC
-#define LED_PIN                 GPIO_PIN_13
-#define LED_PORT_CLK_ENABLE     __HAL_RCC_GPIOC_CLK_ENABLE
 #define RESPONSE_SIZE 16
 #define NUM_FANS 6 // limited by the driver
 #define NUM_TEMP_SENSORS 4
 
 
-#define MAX_PWM 255
-#define MAX_RPM 3000
-
 static fan_handle_t fans[NUM_FANS];
 
-
-#define ADC_VREF 3300
-#define ADC_BITS 12
-#define TEMP_R1 10000
-#define TEMP1_COEFFA 1.02440469e-03
-#define TEMP1_COEFFB 2.06924335e-04
-#define TEMP1_COEFFC 5.07042776e-06
 
 float steinhart(int res, float a0, float a1, float a2) {
 	float res_log = logf(res);
@@ -139,7 +117,6 @@ void on_usb_rx(void* data) {
 			{
 				uint16_t pwm = get_fan_pwm(&fans[data_8[1]]);
 				response[1] = pwm;
-				//response[1] = (pwm*100.0f) / MAX_PWM + 0.5f;
 			}
 			break;
 		case CTL_SET_FAN_FPWM:

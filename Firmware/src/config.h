@@ -1,3 +1,10 @@
+#define ADC_VREF 3300
+#define ADC_BITS 12
+#define TEMP_R1 10000
+#define TEMP1_COEFFA 1.02440469e-03
+#define TEMP1_COEFFB 2.06924335e-04
+#define TEMP1_COEFFC 5.07042776e-06
+
 #define TIMER1_HANDLE &htim1
 #define TIMER2_HANDLE &htim2
 #define TIMER3_HANDLE &htim3
