@@ -42,7 +42,7 @@ SET(PROJECT_SOURCES
 	openfanhub.c
 	xprintf.c
 	./STM32F1/Src/main.c
-	#./STM32F1/Src/tim.c
+	./STM32F1/Src/tim.c
 	#./STM32F1/Src/adc.c
 	./STM32F1/Src/gpio.c
 	./STM32F1/Src/usb_device.c
