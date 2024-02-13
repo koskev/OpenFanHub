@@ -28,29 +28,47 @@ enum CONTROL {
 #define LED_PORT                GPIOC
 #define LED_PIN                 GPIO_PIN_13
 #define LED_PORT_CLK_ENABLE     __HAL_RCC_GPIOC_CLK_ENABLE
+#define RESPONSE_SIZE 16
+
+
+int get_fan_type(int fan_id) {
+	return 0x02;
+}
+
+uint16_t get_fan_rpm(int fan_id) {
+	return 1500;
+}
+
 
 void on_usb_rx(void* data) {
 	uint8_t* data_8 = (uint8_t*) data;
-	uint8_t response[16] = {0};
-	memset(response, 0, 16);
+	static uint8_t response[RESPONSE_SIZE];
+	memset(response, 0, RESPONSE_SIZE);
 	uint8_t command_id = data_8[0];
-	response[15] = 0x42;
 	switch(command_id) {
 		case CTL_GET_TMP_CNCT:
 			// fill byte 1-4 with 1 if a temp probe is present
 			break;
 		case CTL_GET_FAN_CNCT:
+			for(int i = 0; i < 6; ++i) {
+				response[i+1] = get_fan_type(i);
+			}
+			break;
+		case CTL_GET_FAN_RPM:
+			{
+				uint16_t rpm = get_fan_rpm(data_8[1]);
+				response[1] = rpm >> 8;
+				response[2] = rpm;
+
+			}
 			break;
 		case CTL_GET_TMP:
 			response[1] = 0x42;
 			response[2] = 0x42;
-
+			break;
 		default:
 			break;
 	};
-	for(int i = 1; i < 16; ++i){
-		response[i] = 0xEE;
-	}
 	USBD_CUSTOM_HID_SendReport_FS(response, 16);
 	//HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 }
