@@ -115,7 +115,7 @@ void on_usb_rx(void* data) {
 			break;
 		case CTL_GET_FAN_PWM:
 			{
-				uint16_t pwm = get_fan_pwm(&fans[data_8[1]]);
+				uint8_t pwm = get_fan_pwm(&fans[data_8[1]]);
 				response[1] = pwm;
 			}
 			break;

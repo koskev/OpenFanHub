@@ -33,7 +33,6 @@ static int fan_detect_4pin(GPIO_TypeDef* pwm_port, uint16_t pwm_pin) {
 
 void init_fan(fan_handle_t* fan, TIM_HandleTypeDef* pwm_handle, uint32_t pwm_channel, TIM_HandleTypeDef* ic_handle, uint32_t ic_channel, uint32_t ic_active_channel, GPIO_TypeDef* pwm_port, uint16_t pwm_pin, GPIO_TypeDef* power_switch_port, uint16_t power_switch_pin) {
 	// Enable fan power
-	HAL_GPIO_WritePin(power_switch_port, power_switch_pin, GPIO_PIN_SET);
 	HAL_TIM_Base_Start_IT(pwm_handle);
 	HAL_TIM_PWM_Start(pwm_handle, pwm_channel);
 	__HAL_TIM_SET_COMPARE(pwm_handle, pwm_channel, 0);
