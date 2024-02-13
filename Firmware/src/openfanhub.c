@@ -71,12 +71,13 @@ enum CONTROL {
 #define MAX_RPM 3000
 
 typedef struct fan_handle_s {
-	uint8_t pwm_percent;
-	volatile uint16_t rpm;
+	volatile int pwm_percent;
+	volatile int rpm;
 	int is_4pin;
+	int fan_detected;
 
-	TIM_HandleTypeDef* pwm_handle;
-	uint32_t pwm_channel;
+	volatile TIM_HandleTypeDef* pwm_handle;
+	volatile uint32_t pwm_channel;
 
 	TIM_HandleTypeDef* ic_handle;
 	uint32_t ic_channel;
