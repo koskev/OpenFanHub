@@ -23,9 +23,9 @@ extern int8_t USBD_CUSTOM_HID_SendReport_FS ( uint8_t *report,uint16_t len);
 //USBD_StatusTypeDef USBD_LL_Transmit(USBD_HandleTypeDef *pdev, uint8_t ep_addr, uint8_t *pbuf, uint16_t size)
 
 void on_usb_rx(void* data) {
-	//uint8_t response[16] = {0};
-	//USBD_CUSTOM_HID_SendReport_FS(response, 16);
-	__WFI();
+	uint8_t response[16] = {0};
+	USBD_CUSTOM_HID_SendReport_FS(response, 16);
+	 HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 }
 
 int main() {
@@ -34,12 +34,6 @@ int main() {
 
 	while(42) {
 		__WFI();
-		//uint8_t* data = USBD_HID_GetPos();
-		//USBD_CUSTOM_HID_SendReport_FS(data, 9);
-	if ((HAL_GetTick() % 500) == 0)
-		 HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-		uint8_t response[16] = {0};
-		USBD_CUSTOM_HID_SendReport_FS(response, 16);
 	}
 
 }

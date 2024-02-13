@@ -65,7 +65,7 @@
 #define USBD_VID     0x1b1c
 #define USBD_LANGID_STRING     1033
 #define USBD_MANUFACTURER_STRING     "OpenFanHub"
-#define USBD_PID_FS     0x0c11
+#define USBD_PID_FS     0x0c10
 #define USBD_PRODUCT_STRING_FS     "OpenFanHub v0.1"
 #define USBD_CONFIGURATION_STRING_FS     "Custom HID Config"
 #define USBD_INTERFACE_STRING_FS     "Custom HID Interface"
