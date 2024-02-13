@@ -70,11 +70,11 @@
 /*---------- -----------*/
 #define USBD_DEBUG_LEVEL     0
 /*---------- -----------*/
-#define USBD_SELF_POWERED     1
+#define USBD_SELF_POWERED     0
 /*---------- -----------*/
-#define USBD_CUSTOMHID_OUTREPORT_BUF_SIZE     2
+#define USBD_CUSTOMHID_OUTREPORT_BUF_SIZE     16
 /*---------- -----------*/
-#define USBD_CUSTOM_HID_REPORT_DESC_SIZE     18
+#define USBD_CUSTOM_HID_REPORT_DESC_SIZE     42
 /*---------- -----------*/
 #define CUSTOM_HID_FS_BINTERVAL     0x5
 

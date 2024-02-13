@@ -12,7 +12,7 @@
 #include "xprintf.h"
 
 
-//extern int8_t USBD_CUSTOM_HID_SendReport_FS ( uint8_t *report,uint16_t len);
+extern int8_t USBD_CUSTOM_HID_SendReport_FS ( uint8_t *report,uint16_t len);
 //extern PCD_HandleTypeDef hpcd_USB_FS;
 
 #define LED_PORT                GPIOC
@@ -38,6 +38,8 @@ int main() {
 		//USBD_CUSTOM_HID_SendReport_FS(data, 9);
 	if ((HAL_GetTick() % 500) == 0)
 		 HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+		uint8_t response[16] = {0};
+		USBD_CUSTOM_HID_SendReport_FS(response, 16);
 	}
 
 }
