@@ -2,10 +2,17 @@
 
 This project aims to provide plug and play solution for controlling fans and reading temperatures
 
+## Attention
+ * The USB-Library is licensed under the SLA0044 License and therefore incompatible with the GPL. Until this is resolved the GPL does not apply to the "Firmware" folder.
+
 ## TODO
  * Finish PCB
    * Currently working on a barebone blue pill
    * Probably remove the option for two different µC options
+ * Replace USB Lib
+ * Implement Rust version as a learning experience?
+   * But currently USB hates me :/
+ * Replace the USB lib to be compatible with an open source license
 
 ## Features
  * Connection for 18 fans
