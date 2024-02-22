@@ -1,0 +1,9 @@
+[submodule "Firmware/lib/Firmware/lib/STM32CubeF1"]
+	path = Firmware/lib/Firmware/lib/STM32CubeF1
+	url = https://github.com/STMicroelectronics/STM32CubeF1
+[submodule "Firmware/lib/STM32CubeF1"]
+	path = Firmware/lib/STM32CubeF1
+	url = https://github.com/STMicroelectronics/STM32CubeF1
+[submodule "Firmware/lib/stm32-cmake"]
+	path = Firmware/lib/stm32-cmake
+	url = https://github.com/ObKo/stm32-cmake
